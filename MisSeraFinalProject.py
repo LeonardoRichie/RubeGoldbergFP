@@ -6,26 +6,40 @@ pygame.init()
 clock = pygame.time.Clock()
 fps = 60
 
-
 #screen size
 screen_width = 1000
 screen_height = 1000
 
-screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption('Parkour') #title of the run application
+screen = pygame.display.set_mode((screen_width, screen_height), pygame.SRCALPHA)
+pygame.display.set_caption('Rube Goldberg') #title of the run application
+
 
 #define game variables
 tile_size = 50
 game_over = 0
 
 #upload image
-bg_img = pygame.image.load('starsbackground.png')
-bg_img = pygame.transform.scale(bg_img,(2016,1134))
+bg_img = pygame.image.load('steelbackground.jpg')
+bg_img = pygame.transform.scale(bg_img,(1500,1134))
 restart_img = pygame.image.load('Restart.png')
 level1_img = pygame.image.load('level1.png')
-level1_img = pygame.transform.scale(level1_img,(200,100))
+level1_img = pygame.transform.scale(level1_img,(125,125))
 level2_img = pygame.image.load('level2.png')
-level2_img = pygame.transform.scale(level2_img,(200,100))
+level2_img = pygame.transform.scale(level2_img,(125,125))
+level3_img = pygame.image.load('level3.jpg')
+level3_img = pygame.transform.scale(level3_img,(125,125))
+level4_img = pygame.image.load('level4.png')
+level4_img = pygame.transform.scale(level4_img,(125,125))
+level5_img = pygame.image.load('level5.png')
+level5_img = pygame.transform.scale(level5_img,(125,125))
+level6_img = pygame.image.load('level6.png')
+level6_img = pygame.transform.scale(level6_img,(125,125))
+level7_img = pygame.image.load('level7.png')
+level7_img = pygame.transform.scale(level7_img,(125,125))
+level8_img = pygame.image.load('level8.png')
+level8_img = pygame.transform.scale(level8_img,(125,125))
+level9_img = pygame.image.load('level9.png')
+level9_img = pygame.transform.scale(level9_img,(125,125))
 back_img = pygame.image.load('back.png')
 back_img = pygame.transform.scale(back_img,(100,50 ))
 
@@ -76,18 +90,14 @@ class Player():
         #getkeypresses
             key = pygame.key.get_pressed()
             if key[pygame.K_SPACE] and self.jumped == False:
-                self.vel_y = -11
+                self.vel_y = -20
                 self.jumped = True
             if key[pygame.K_SPACE] == False:
                 self.jumped = False
             if key[pygame.K_LEFT]:
-                dx -= 5
-                self.counter += 1
-                self.direction = -1
+                self.vel_x = -5
             if key[pygame.K_RIGHT]:
-                dx += 5
-                self.counter += 1
-                self.direction = 1
+                self.vel_x = 5
 
             if key[pygame.K_LEFT] == False and key[pygame.K_RIGHT]== False:
                 self.counter = 0
@@ -133,21 +143,15 @@ class Player():
                     #check if below the ground jumping
                     if self.vel_y < 0:
                         dy = tile[1].bottom - self.rect.top
+                        self.vel_y = speedfall+10
+                        #self.vel_y = speedfall+50 mantul
                     elif self.vel_y >= 0:
                         dy = tile[1].top - self.rect.bottom
                         self.vel_y = -speedfall+3
                         
-        
-            #check collision with enemies
-            if pygame.sprite.spritecollide(self, slug_group, False):
-                game_over = -1
 
-            #check collision with water
-            if pygame.sprite.spritecollide(self, water_group, False):
-                game_over = -1
-
-            #check collision with spike
-            if pygame.sprite.spritecollide(self, spike_group, False):
+            #check collision with portal
+            if pygame.sprite.spritecollide(self, portal_group, False):
                 game_over = -1
 
             #update player coordinates
@@ -163,7 +167,7 @@ class Player():
 
         #draw player unto screen
         screen.blit(self.image, self.rect)
-        pygame.draw.rect(screen, (255,255,255), self.rect, 2)
+        #pygame.draw.rect(screen, (255,255,255), self.rect, 2)
 
         return game_over
 
@@ -196,9 +200,8 @@ class World():
         self.tile_list = []
 
         #load image
-        dirt_img = pygame.image.load('wood.jpg')
-        dirtgrass_img = pygame.image.load('mushroom.png')
-        water_img = pygame.image.load('starblock.png') 
+        dirt_img = pygame.image.load('steelblock.png')
+        portal_img = pygame.image.load('portal.png') 
 
         row_count = 0
         for row in data:
@@ -211,26 +214,12 @@ class World():
                     img_rect.y = row_count * tile_size
                     tile  = (img, img_rect)
                     self.tile_list.append(tile)
-                if tile == 2:
-                    img = pygame.transform.scale(dirtgrass_img,(tile_size, tile_size))
-                    img_rect = img.get_rect()
-                    img_rect.x = col_count * tile_size
-                    img_rect.y = row_count * tile_size
-                    tile  = (img, img_rect)
-                    self.tile_list.append(tile)
+
 
                 if tile == 3:
-                    water = Water(col_count * tile_size, row_count * tile_size)
-                    water_group.add(water)
-
-
-                if tile == 4:
-                    slug = Enemy(col_count * tile_size, row_count * tile_size + 15)
-                    slug_group.add(slug)
-
-                if tile == 5:
-                    spike = Spike(col_count * tile_size, row_count * tile_size)
-                    spike_group.add(spike)
+                    portal = Portal(col_count * tile_size, row_count * tile_size)
+                    portal_group.add(portal)
+                    
 
                 col_count += 1
             row_count += 1
@@ -238,52 +227,16 @@ class World():
     def draw(self):
         for tile in self.tile_list:
             screen.blit(tile[0], tile[1])
-            pygame.draw.rect(screen, (255, 255, 255), tile[1],2)
-
-class Enemy(pygame.sprite.Sprite):
+            #pygame.draw.rect(screen, (255, 255, 255, 0) , tile[1],2)
+            
+class Portal(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load('Centipede.png')
+        portal_img = pygame.image.load('portal.png')
+        self.image = pygame.transform.scale(portal_img,(tile_size, tile_size))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.move_direction = 1
-        self.move_counter = 0
-        
-
-    def update(self):
-        self.image = pygame.image.load('Centipede.png')
-        self.rect.x += self.move_direction
-        self.move_counter += 1
-        if self.move_counter > 50:
-            self.move_direction *= -1
-            self.move_counter *= -1
-        if self.move_direction < 0:
-            self.image = pygame.image.load('Centipede.png')
-        if self.move_direction > 0:
-            self.image = pygame.transform.flip(self.image, True, False)
-
-class Water(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        pygame.sprite.Sprite.__init__(self)
-        water_img = pygame.image.load('Tile_10.png')
-        self.image = pygame.transform.scale(water_img,(tile_size, tile_size))
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-
-class Spike(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        pygame.sprite.Sprite.__init__(self)
-        spike_img = pygame.image.load('spike.png')
-        self.image = pygame.transform.scale(spike_img,(tile_size, tile_size))
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        
-
-
-
         
 #GAME WORLD DESIGN
 world_data = [
@@ -314,15 +267,15 @@ world_data = [
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1],
@@ -335,27 +288,171 @@ world_data = [
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3],
 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+,
+[[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+,
+[[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+,
+[[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+,
+[[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+,
+[[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+,
+[[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+,
+[[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
 ]
 
 player = Player(100, screen_height - 900)
-
-slug_group = pygame.sprite.Group()
-water_group = pygame.sprite.Group()
-spike_group = pygame.sprite.Group()
+portal_group = pygame.sprite.Group()
 
 
 def runworld(x):
@@ -364,8 +461,17 @@ def runworld(x):
 
 #create buttons
 restart_button = Button(screen_width // 2 - 400, screen_height // 2 + 150, restart_img)
-level1_button = Button(screen_width // 2 - 400, screen_height // 2 + 50, level1_img)
-level2_button = Button(screen_width // 2 - 400, screen_height // 2 + 150, level2_img)
+level1_button = Button(screen_width // 2 - 300, screen_height // 2 - 200, level1_img)
+level2_button = Button(screen_width // 2 -100, screen_height // 2 - 200, level2_img)
+level3_button = Button(screen_width // 2 +100, screen_height // 2 - 200, level3_img)
+level4_button = Button(screen_width // 2 - 300, screen_height // 2, level4_img)
+level5_button = Button(screen_width // 2 - 100, screen_height // 2, level5_img)
+level6_button = Button(screen_width // 2 + 100, screen_height // 2, level6_img)
+level7_button = Button(screen_width // 2 - 300, screen_height // 2 +200, level7_img)
+level8_button = Button(screen_width // 2 - 100, screen_height // 2 +200, level8_img)
+level9_button = Button(screen_width // 2 + 100, screen_height // 2 +200, level9_img)
+
+
 back_button = Button(screen_width-150, 50, back_img)
  
 #  white .
@@ -390,7 +496,7 @@ font = pygame.font.Font('freesansbold.ttf', 15)
  
 # create a text surface object,
 # on which text is drawn on it.
-content = """Rubes Goldberg Machine"""
+content = """Rubes Goldberg Machine - Richie - Nicholas - Reynard - Jopras"""
 text = font.render(content, True, white)
  
 # create a rectangular object for the
@@ -398,15 +504,12 @@ text = font.render(content, True, white)
 textRect = text.get_rect()
  
 # set the center of the rectangular object.
-textRect.center = (screen_width // 2 - 350, screen_height // 2 + 420)
+textRect.center = (screen_width // 2 - 200, screen_height // 2 + 420)
 
 status = 0 #lobby
 
 def createExtras():
-    water_group.draw(screen)
-    spike_group.draw(screen)
-    slug_group.update()
-    slug_group.draw(screen)
+    portal_group.draw(screen)
     
 #GAME RUNNING
 run = True
@@ -417,42 +520,162 @@ while run:
         world = runworld(world_data[0])
         world.draw()
         if level1_button.draw():
+            game_over = 0
             player.reset(100, screen_height - 900)
             status = 1
         if level2_button.draw():
+            game_over = 0
             player.reset(100, screen_height - 900)
             status = 2
-            
+        if level3_button.draw():
+            game_over = 0
+            player.reset(100, screen_height - 900)
+            status = 3
+        if level4_button.draw():
+            game_over = 0
+            player.reset(100, screen_height - 900)
+            status = 4
+        if level5_button.draw():
+            game_over = 0
+            player.reset(100, screen_height - 900)
+            status = 5
+        if level6_button.draw():
+            game_over = 0
+            player.reset(100, screen_height - 900)
+            status = 6
+        if level7_button.draw():
+            game_over = 0
+            player.reset(100, screen_height - 900)
+            status = 7
+        if level8_button.draw():
+            game_over = 0
+            player.reset(100, screen_height - 900)
+            status = 8
+        if level9_button.draw():
+            game_over = 0
+            player.reset(100, screen_height - 900)
+            status = 9
+
     if status ==1:
+        if game_over == -1: #when player died
+            if restart_button.draw():
+                game_over = 0
+                player.reset(100, screen_height - 900)
         createExtras()
         world = runworld(world_data[1])
         world.draw()
         if back_button.draw():
+            game_over = 0
             player.reset(100, screen_height - 900)
             status = 0
             
     if status ==2:
+        if game_over == -1: #when player died
+            if restart_button.draw():
+                game_over = 0
+                player.reset(100, screen_height - 900)
         createExtras()
         world = runworld(world_data[2])
         world.draw()
         if back_button.draw():
+            game_over = 0
             player.reset(100, screen_height - 900)
             status = 0
-    #if x == world_data[0]:
-        #if level1_button.draw():
-            #world_data[1]
-        #level2_button.draw()
+            
+    if status ==3:
+        if game_over == -1: #when player died
+            if restart_button.draw():
+                game_over = 0
+                player.reset(100, screen_height - 900)
+        createExtras()
+        world = runworld(world_data[3])
+        world.draw()
+        if back_button.draw():
+            game_over = 0
+            player.reset(100, screen_height - 900)
+            status = 0
+    
+    if status ==4:
+        if game_over == -1: #when player died
+            if restart_button.draw():
+                game_over = 0
+                player.reset(100, screen_height - 900)
+        createExtras()
+        world = runworld(world_data[4])
+        world.draw()
+        if back_button.draw():
+            game_over = 0
+            player.reset(100, screen_height - 900)
+            status = 0
+    
+    if status ==5:
+        if game_over == -1: #when player died
+            if restart_button.draw():
+                game_over = 0
+                player.reset(100, screen_height - 900)
+        createExtras()
+        world = runworld(world_data[5])
+        world.draw()
+        if back_button.draw():
+            game_over = 0
+            player.reset(100, screen_height - 900)
+            status = 0
+    
+    if status ==6:
+        if game_over == -1: #when player died
+            if restart_button.draw():
+                game_over = 0
+                player.reset(100, screen_height - 900)
+        createExtras()
+        world = runworld(world_data[6])
+        world.draw()
+        if back_button.draw():
+            game_over = 0
+            player.reset(100, screen_height - 900)
+            status = 0
+    
+    if status ==7:
+        if game_over == -1: #when player died
+            if restart_button.draw():
+                game_over = 0
+                player.reset(100, screen_height - 900)
+        createExtras()
+        world = runworld(world_data[7])
+        world.draw()
+        if back_button.draw():
+            game_over = 0
+            player.reset(100, screen_height - 900)
+            status = 0
+    
+    if status ==  8:
+        if game_over == -1: #when player died
+            if restart_button.draw():
+                game_over = 0
+                player.reset(100, screen_height - 900)
+        createExtras()
+        world = runworld(world_data[8])
+        world.draw()
+        if back_button.draw():
+            game_over = 0
+            player.reset(100, screen_height - 900)
+            status = 0
+        
+    if status == 9:
+        if game_over == -1: #when player died
+            if restart_button.draw():
+                game_over = 0
+                player.reset(100, screen_height - 900)
+        createExtras()
+        world = runworld(world_data[9])
+        world.draw()
+        if back_button.draw():
+            game_over = 0
+            player.reset(100, screen_height - 900)
+            status = 0
 
     display_surface.blit(text,textRect)
 
     game_over = player.update(game_over)
-
-    
-
-    if game_over == -1: #when player died
-        if restart_button.draw():
-            player.reset(100, screen_height - 900)
-            game_over = 0
 
     #draw_grid()
 
