@@ -26,7 +26,7 @@ level1_img = pygame.image.load('level1.png')
 level1_img = pygame.transform.scale(level1_img,(125,125))
 level2_img = pygame.image.load('level2.png')
 level2_img = pygame.transform.scale(level2_img,(125,125))
-level3_img = pygame.image.load('level3.jpg')
+level3_img = pygame.image.load('level3.png')
 level3_img = pygame.transform.scale(level3_img,(125,125))
 level4_img = pygame.image.load('level4.png')
 level4_img = pygame.transform.scale(level4_img,(125,125))
@@ -42,6 +42,8 @@ level9_img = pygame.image.load('level9.png')
 level9_img = pygame.transform.scale(level9_img,(125,125))
 back_img = pygame.image.load('back.png')
 back_img = pygame.transform.scale(back_img,(100,50 ))
+title_img = pygame.image.load('title.png')
+
 
 #def draw_grid():
     #for line in range(0, 20):
@@ -470,7 +472,7 @@ level6_button = Button(screen_width // 2 + 100, screen_height // 2, level6_img)
 level7_button = Button(screen_width // 2 - 300, screen_height // 2 +200, level7_img)
 level8_button = Button(screen_width // 2 - 100, screen_height // 2 +200, level8_img)
 level9_button = Button(screen_width // 2 + 100, screen_height // 2 +200, level9_img)
-
+title_button=Button(screen_width //2-320,  -100, title_img)
 
 back_button = Button(screen_width-150, 50, back_img)
  
@@ -519,6 +521,7 @@ while run:
     if status ==0:
         world = runworld(world_data[0])
         world.draw()
+        title_button.draw()
         if level1_button.draw():
             game_over = 0
             player.reset(100, screen_height - 900)
