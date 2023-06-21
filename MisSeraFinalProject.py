@@ -19,9 +19,15 @@ tile_size = 50
 game_over = 0
 
 #upload image
-bg_img = pygame.image.load('Background.png')
+bg_img = pygame.image.load('starsbackground.png')
 bg_img = pygame.transform.scale(bg_img,(2016,1134))
 restart_img = pygame.image.load('Restart.png')
+level1_img = pygame.image.load('level1.png')
+level1_img = pygame.transform.scale(level1_img,(200,100))
+level2_img = pygame.image.load('level2.png')
+level2_img = pygame.transform.scale(level2_img,(200,100))
+back_img = pygame.image.load('back.png')
+back_img = pygame.transform.scale(back_img,(100,50 ))
 
 #def draw_grid():
     #for line in range(0, 20):
@@ -167,13 +173,13 @@ class Player():
         self.index = 0
         self.counter = 0
         for num in range(3,6):
-            img_right = pygame.image.load(f'Woodcutters{num}.png')
-            img_right = pygame.transform.scale(img_right, (35, 45))
+            img_right = pygame.image.load(f'blueball.png')
+            img_right = pygame.transform.scale(img_right, (35, 35))
             img_left = pygame.transform.flip(img_right, True, False )#flipimage
             self.images_right.append(img_right)
             self.images_left.append(img_left)
-        grave_image = pygame.image.load('Grave.png') #dead image
-        self.dead_image = pygame.transform.scale(grave_image, (40, 50))# resizing to the game size
+        grave_image = pygame.image.load('blueball.png') #dead image
+        self.dead_image = pygame.transform.scale(grave_image, (35, 35))# resizing to the game size
         self.image = self.images_right[self.index]
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -190,9 +196,9 @@ class World():
         self.tile_list = []
 
         #load image
-        dirt_img = pygame.image.load('Tile_12.png')
-        dirtgrass_img = pygame.image.load('Tile_02.png')
-        water_img = pygame.image.load('Tile_10.png') 
+        dirt_img = pygame.image.load('wood.jpg')
+        dirtgrass_img = pygame.image.load('mushroom.png')
+        water_img = pygame.image.load('starblock.png') 
 
         row_count = 0
         for row in data:
@@ -281,7 +287,28 @@ class Spike(pygame.sprite.Sprite):
         
 #GAME WORLD DESIGN
 world_data = [
-[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+[[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+,
+[[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -300,7 +327,28 @@ world_data = [
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1],
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3],
-[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+,
+[[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1],
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 3],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
 ]
 
 player = Player(100, screen_height - 900)
@@ -309,12 +357,16 @@ slug_group = pygame.sprite.Group()
 water_group = pygame.sprite.Group()
 spike_group = pygame.sprite.Group()
 
-world = World(world_data)
+
+def runworld(x):
+    world = World(x)
+    return world
 
 #create buttons
 restart_button = Button(screen_width // 2 - 400, screen_height // 2 + 150, restart_img)
-
-
+level1_button = Button(screen_width // 2 - 400, screen_height // 2 + 50, level1_img)
+level2_button = Button(screen_width // 2 - 400, screen_height // 2 + 150, level2_img)
+back_button = Button(screen_width-150, 50, back_img)
  
 #  white .
 white = (255, 255, 255)
@@ -338,7 +390,7 @@ font = pygame.font.Font('freesansbold.ttf', 15)
  
 # create a text surface object,
 # on which text is drawn on it.
-content = """Reach the door to Win!"""
+content = """Rubes Goldberg Machine"""
 text = font.render(content, True, white)
  
 # create a rectangular object for the
@@ -346,26 +398,54 @@ text = font.render(content, True, white)
 textRect = text.get_rect()
  
 # set the center of the rectangular object.
-textRect.center = (screen_width // 2 - 350, screen_height // 2 + 330)
+textRect.center = (screen_width // 2 - 350, screen_height // 2 + 420)
 
+status = 0 #lobby
+
+def createExtras():
+    water_group.draw(screen)
+    spike_group.draw(screen)
+    slug_group.update()
+    slug_group.draw(screen)
+    
 #GAME RUNNING
 run = True
 while run:
-
     clock.tick(fps)
     screen.blit(bg_img,(0,0))
-
-    world.draw()
+    if status ==0:
+        world = runworld(world_data[0])
+        world.draw()
+        if level1_button.draw():
+            player.reset(100, screen_height - 900)
+            status = 1
+        if level2_button.draw():
+            player.reset(100, screen_height - 900)
+            status = 2
+            
+    if status ==1:
+        createExtras()
+        world = runworld(world_data[1])
+        world.draw()
+        if back_button.draw():
+            player.reset(100, screen_height - 900)
+            status = 0
+            
+    if status ==2:
+        createExtras()
+        world = runworld(world_data[2])
+        world.draw()
+        if back_button.draw():
+            player.reset(100, screen_height - 900)
+            status = 0
+    #if x == world_data[0]:
+        #if level1_button.draw():
+            #world_data[1]
+        #level2_button.draw()
 
     display_surface.blit(text,textRect)
 
-    water_group.draw(screen)
-    spike_group.draw(screen)
-
     game_over = player.update(game_over)
-
-    slug_group.update()
-    slug_group.draw(screen)
 
     
 
